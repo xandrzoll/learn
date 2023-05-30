@@ -68,6 +68,7 @@ window = Window.partitionBy("location").orderBy(col("new_cases").desc())
 # |     UKR|2021-03-26|      Ukraine|  18226.0|
 # +--------+----------+-------------+---------+
 
+# 3) Изменение числа случаев по отношению к пред.дню в России за последнюю неделю марта
 window = Window.partitionBy("location").orderBy(col("date"))
 (
     data
