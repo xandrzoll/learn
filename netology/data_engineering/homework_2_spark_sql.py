@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, max, lag, row_number
+from pyspark.sql.functions import col, max, lag, row_number, round
 
 
 spark = SparkSession.builder.appName("netology").master('local[2]').getOrCreate()
@@ -18,28 +18,28 @@ data = (
     data
     .filter((col('date') == '2021-03-31'))
     .select(
-        'iso_code', 'location', (col('total_cases') / col('population')).alias('cases_per_population'))
+        'iso_code', 'location', round((col('total_cases') / col('population')) * 100, 2).alias('cases_per_population'))
     .sort(col('cases_per_population').desc())
     .show(15)
 )
 # +--------+-------------+--------------------+
 # |iso_code|     location|cases_per_population|
 # +--------+-------------+--------------------+
-# |     AND|      Andorra| 0.15543907331909662|
-# |     MNE|   Montenegro| 0.14523725364693293|
-# |     CZE|      Czechia| 0.14308848404077998|
-# |     SMR|   San Marino|  0.1393717956273204|
-# |     SVN|     Slovenia| 0.10370805779121203|
-# |     LUX|   Luxembourg| 0.09847342390123583|
-# |     ISR|       Israel| 0.09625106044786802|
-# |     USA|United States| 0.09203010995860707|
-# |     SRB|       Serbia| 0.08826328557933491|
-# |     BHR|      Bahrain| 0.08488860079114566|
-# |     PAN|       Panama| 0.08228739065460762|
-# |     PRT|     Portugal| 0.08058699735120368|
-# |     EST|      Estonia|  0.0802268157965955|
-# |     SWE|       Sweden| 0.07969744347858805|
-# |     LTU|    Lithuania| 0.07938864728274825|
+# |     AND|      Andorra|               15.54|
+# |     MNE|   Montenegro|               14.52|
+# |     CZE|      Czechia|               14.31|
+# |     SMR|   San Marino|               13.94|
+# |     SVN|     Slovenia|               10.37|
+# |     LUX|   Luxembourg|                9.85|
+# |     ISR|       Israel|                9.63|
+# |     USA|United States|                 9.2|
+# |     SRB|       Serbia|                8.83|
+# |     BHR|      Bahrain|                8.49|
+# |     PAN|       Panama|                8.23|
+# |     PRT|     Portugal|                8.06|
+# |     EST|      Estonia|                8.02|
+# |     SWE|       Sweden|                7.97|
+# |     LTU|    Lithuania|                7.94|
 # +--------+-------------+--------------------+
 
 # 2) TOP 10 стран с макс. кол-вом новых случаев за последнюю неделю марта 2021
@@ -75,12 +75,13 @@ window = Window.partitionBy("location").orderBy(col("date"))
     .filter((col('date') >= '2021-03-22') & (col('date') <= '2021-03-28') & (col('iso_code') == 'RUS'))
     .withColumn('cases_prev_day', lag('new_cases', 1).over(window))
     .select('iso_code', 'date', 'location', 'new_cases', 'cases_prev_day', (col('new_cases') - col('cases_prev_day')).alias('cases_delta'))
+    .fillna(0)
     .show(20)
 )
 # +--------+----------+--------+---------+--------------+-----------+
 # |iso_code|      date|location|new_cases|cases_prev_day|cases_delta|
 # +--------+----------+--------+---------+--------------+-----------+
-# |     RUS|2021-03-22|  Russia|   9195.0|          null|       null|
+# |     RUS|2021-03-22|  Russia|   9195.0|           0.0|        0.0|
 # |     RUS|2021-03-23|  Russia|   8369.0|        9195.0|     -826.0|
 # |     RUS|2021-03-24|  Russia|   8769.0|        8369.0|      400.0|
 # |     RUS|2021-03-25|  Russia|   9128.0|        8769.0|      359.0|
