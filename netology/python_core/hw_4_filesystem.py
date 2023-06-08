@@ -26,13 +26,17 @@ with open('data/visit_log.csv', 'r') as f_in, \
     f_out.write('user_id,source,category\n')
     for line in f_in:
         user_id = line.split(',')[0]
-        f_out.write(f'{line[:-1]},"{data_transform.get(user_id, "None")}"\n')
+        purchase = data_transform.get(user_id)
+        if purchase:
+            f_out.write(f'{line[:-1]},{"|".join(purchase)}\n')
 
 
 # funnel.csv:
 # user_id,source,category
-# 6450655ae8,other,"None"
+# 1840e0b9d4,other,Продукты
+# 4e4f90fcfb,context,Электроника
+# afea8d72fc,other,Электроника
+# 2824221f38,email,Продукты
 # ...
-# b18d58560b,email,"None"
-# ed79586589,other,"None"
-# 1840e0b9d4,other,"['Продукты']"
+# 6f24969f4e,other,Электроника|Строительство и ремонт
+# ...
