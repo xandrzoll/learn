@@ -3,21 +3,13 @@ import json
 
 with open('data/purchase_log.txt', 'r') as f:
     data = f.read()
-    data_json = json.loads('[' + data.replace('\n', ',')[:-1] + ']')
+
+data_json = json.loads('[' + data.replace('\n', ',')[:-1] + ']')
 
 data_transform = dict()
-for line in data.split('\n'):
-    if not line:
-        continue
-    line_ = (
-        line
-        .replace('{', '')
-        .replace('}', '')
-        .replace('"', '')
-        .split(',')
-    )
-    user_id = line_[0].split(':')[-1].strip()
-    category = line_[1].split(':')[-1].strip()
+for line in data_json:
+    user_id = line.get('user_id')
+    category = line.get('category')
     data_transform[user_id] = data_transform.get(user_id, []) + [category]
 
 with open('data/visit_log.csv', 'r') as f_in, \
