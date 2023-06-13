@@ -89,10 +89,17 @@ def production_year(title: str) -> int:
 data = get_data()
 data['year'] = data['title'].apply(production_year)
 data_years_rating = data.groupby('year', as_index=False)['rating'].mean().sort_values('rating', ascending=False)
-print(data_years_rating.head())
+print(data_years_rating.head(), data_years_rating.tail(), sep='\n\n')
 #     year    rating
 # 13  1962  3.803059
 # 2   1951  3.795416
 # 1   1950  3.758235
 # 5   1954  3.748782
 # 17  1966  3.731684
+#
+#     year    rating
+# 41  1990  3.095630
+# 38  1987  3.079078
+# 47  1996  3.073662
+# 39  1988  3.069941
+# 51  2000  3.050624
